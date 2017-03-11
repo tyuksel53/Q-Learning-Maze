@@ -66,7 +66,7 @@ namespace YazlabII_I
                     i++;
                 }
             }
-            using (StreamWriter wr = new StreamWriter("C:\\Users\\Ramazan Demir\\Desktop\\Rmatrisi.txt",false))
+            using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\Rmatrisi.txt",false))
             {
                 for (i = 0; i < 9; i++)
                 {
@@ -77,52 +77,55 @@ namespace YazlabII_I
                     wr.WriteLine();
                 }
             }
-            MessageBox.Show("Tamamlandı ve Bitti");
+            int hedef = Convert.ToInt32(EndDot.Text);
             var Qmatris = Qmatris_Olustur();
 
             for (int z = 0; z < Convert.ToInt32(iterasyon.Text); z++)
             {
                 int baslangicDot = Convert.ToInt32(beginDot.Text);
 
-                //baslangic random olarak seçilir vve olaylar gelişir
                 string yol = "";
+
+                for (i = 0; i < 9; i++)
+                {
+                    if (Rmatris[baslangicDot][i] >= 0)
+                    {
+                        yol = yol + i + "|";
+                    }
+                }
+
+                var yollar = yol.Split('|');
+
+                Random lRandom = new Random();
+                int randomIndex = lRandom.Next(0, yollar.Length - 1);
+
+                int qbaslangic = Convert.ToInt32(yollar[randomIndex]);
+                bool control = false;
+                yol = "";
                 while (true)
                 {
+                    var sonuc = zincir(Rmatris, baslangicDot, qbaslangic, Qmatris);
+                    
+                    
+                    Qmatris[baslangicDot][qbaslangic] = sonuc[2];
 
+                    baslangicDot  =  Convert.ToInt32(sonuc[0]);
+                    qbaslangic    =  Convert.ToInt32(sonuc[1]);
 
-                    for (i = 0; i < 9; i++)
-                    {
-                        if (Rmatris[baslangicDot][i] >= 0)
-                        {
-                            yol = yol + i + "|";
-                        }
-                    }
-
-                    var yollar = yol.Split('|');
-
-                    if (baslangicDot == 4)
-                    {
-                        var dummy = 1;
-                    }
-                    Random lRandom = new Random();
-                    int randomIndex = lRandom.Next(0, yollar.Length - 1);
-                    int qbaslangic = Convert.ToInt32(yollar[randomIndex]);
-
-                    /*if (baslangicDot == Convert.ToInt32(EndDot.Text))
+                    if (control == true)
                     {
                         break;
-                    }*/
+                    }
+                    if (hedef == qbaslangic)
+                    {
+                        control = true;
+                    }
 
-                    var sonuc = zincir(Rmatris, baslangicDot, qbaslangic, Qmatris);
-                    yol = "";
-                    
-                    Qmatris[baslangicDot][qbaslangic] = Qmatris[baslangicDot][qbaslangic] +  sonuc[1];
-                    baslangicDot = Convert.ToInt32(sonuc[0]);
                 }
 
             }
 
-            using (StreamWriter wr = new StreamWriter("C:\\Users\\Ramazan Demir\\Desktop\\Qmatris.txt", false))
+            using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\Qmatris.txt", false))
             {
                 for (i = 0; i < 9; i++)
                 {
@@ -133,13 +136,15 @@ namespace YazlabII_I
                     wr.WriteLine();
                 }
             }
-            
-
-
+            MessageBox.Show("Tamamlandı ve Bitti");
         }
 
         protected double[] zincir(double[][] Rmatris, int indexQbegin,int indexQend,double[][] Qmatris)
         {
+            double[] ReturnSonuc = new double[3];
+
+            ReturnSonuc[0] = indexQend; //-> bir sonrakinin başlangici
+
             int i;
             string yol = "";
             for (i = 0; i < 9; i++)
@@ -158,46 +163,28 @@ namespace YazlabII_I
 
             for (i = 0; i < myInts.Length; i++)
             {
-                yol = yol + Qmatris[indexQend][myInts[i]] + "|";  
+                if (Qmatris[indexQend][myInts[i]] > 0)
+                {
+                    var dummy = 1;
+                }
+                yol = yol + Qmatris[indexQend][myInts[i]] + "*";  
             }
+            Random randomYol = new Random();
+            int randomYolIndex = randomYol.Next(0, myInts.Length);
 
-            var SonucYollar = yol.Split('|');
+            ReturnSonuc[1] = myInts[randomYolIndex]; // -> devam yolunun rastgele belirlenmesi
+
+            var SonucYollar = yol.Split('*');
             SonucYollar = SonucYollar.Take(SonucYollar.Count() - 1).ToArray();
 
-            int[] MaxQ = Array.ConvertAll(SonucYollar, s => int.Parse(s));
+            double[] MaxQ = Array.ConvertAll(SonucYollar, s => double.Parse(s));
 
-            int maxValue = MaxQ.Max();
-
-            double[] ReturnSonuc = new double[2];
-
-            string randomSec = "";
-
-            for (i = 0; i < myInts.Length; i++)
-            {
-                if (Qmatris[indexQend][myInts[i]] == maxValue)
-                {
-                    //aynı max degerler gelirse
-                    ReturnSonuc[0] = myInts[i];
-                    randomSec = randomSec + myInts[i] + "|";
-                    
-                }
-            }
-            // maxlar aynı olursa random seç
-            var SonucRandomSec = randomSec.Split('|');
-
-            SonucRandomSec = SonucRandomSec.Take(SonucRandomSec.Count() - 1).ToArray();
-            
-            Random lRandom = new Random();
-            int randomIndex = lRandom.Next(0, SonucRandomSec.Length);
-
-            ReturnSonuc[0] = Convert.ToDouble(SonucRandomSec[randomIndex]);
-            // random seç bitti
-            
+            double maxValue = MaxQ.Max();
             
             double sonuc = (maxValue * 0.8) + Rmatris[indexQbegin][indexQend];
 
 
-            ReturnSonuc[1] = sonuc;
+            ReturnSonuc[2] = sonuc;
 
             return ReturnSonuc;
         }
