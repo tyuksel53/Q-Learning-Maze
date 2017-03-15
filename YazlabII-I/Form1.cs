@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace YazlabII_I
 {
@@ -17,11 +19,11 @@ namespace YazlabII_I
         public Form1()
         {
             InitializeComponent();
+
         }
-
-
         private void button1_Click(object sender, EventArgs e)
         {
+            
             OpenFileDialog file = new OpenFileDialog();
             file.ShowDialog();
             textBox4.Text = file.FileName;
@@ -30,14 +32,23 @@ namespace YazlabII_I
 
         private void startButton_Click(object sender, EventArgs e)
         {
-            
-            String line;
-            double[][] Rmatris = new double[9][];
-            int i = 0,j=0;
-            for (i = 0; i < 9; i++)
+            int MatrixBoyut = 0;
+            using (StreamReader ty = new StreamReader(path))
             {
-                Rmatris[i] = new double[9];
-                for (j = 0; j < 9; j++)
+                String satir;
+               
+                while ((satir = ty.ReadLine()) != null)
+                {
+                    MatrixBoyut++;
+                }
+            }
+            String line;
+            double[][] Rmatris = new double[MatrixBoyut][];
+            int i = 0,j=0;
+            for (i = 0; i < MatrixBoyut; i++)
+            {
+                Rmatris[i] = new double[MatrixBoyut];
+                for (j = 0; j < MatrixBoyut; j++)
                 {
                     Rmatris[i][j] = -1;
                 }
@@ -56,6 +67,7 @@ namespace YazlabII_I
                             {
                                 Rmatris[Convert.ToInt32(mundi)][i] = 100;
                             }
+                            Rmatris[i][i] = 100;
                         }
                         if (Rmatris[i][Convert.ToInt32(item)] != 100)
                         {
@@ -68,9 +80,9 @@ namespace YazlabII_I
             }
             using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\Rmatrisi.txt",false))
             {
-                for (i = 0; i < 9; i++)
+                for (i = 0; i < MatrixBoyut; i++)
                 {
-                    for (j = 0; j < 9; j++)
+                    for (j = 0; j < MatrixBoyut; j++)
                     {
                         wr.Write(Rmatris[i][j] +  " ");
                     }
@@ -78,7 +90,7 @@ namespace YazlabII_I
                 }
             }
             int hedef = Convert.ToInt32(EndDot.Text);
-            var Qmatris = Qmatris_Olustur();
+            var Qmatris = Qmatris_Olustur(MatrixBoyut);
 
             for (int z = 0; z < Convert.ToInt32(iterasyon.Text); z++)
             {
@@ -86,7 +98,7 @@ namespace YazlabII_I
 
                 string yol = "";
 
-                for (i = 0; i < 9; i++)
+                for (i = 0; i < MatrixBoyut; i++)
                 {
                     if (Rmatris[baslangicDot][i] >= 0)
                     {
@@ -102,9 +114,10 @@ namespace YazlabII_I
                 int qbaslangic = Convert.ToInt32(yollar[randomIndex]);
                 bool control = false;
                 yol = "";
+                int natay = 0;
                 while (true)
                 {
-                    var sonuc = zincir(Rmatris, baslangicDot, qbaslangic, Qmatris);
+                    var sonuc = zincir(Rmatris, baslangicDot, qbaslangic, Qmatris,MatrixBoyut);
                     
                     
                     Qmatris[baslangicDot][qbaslangic] = sonuc[2];
@@ -118,28 +131,65 @@ namespace YazlabII_I
                     }
                     if (hedef == qbaslangic)
                     {
+                        if (natay == 0)
+                        {
+                            break;
+                        }
                         control = true;
                     }
-
+                    natay++;
                 }
 
             }
 
+            
+
+            ////Yol buldurulucak kısım
+            /// 
+            string SonucYol = beginDot.Text;
+            int sonrakiAdim = Convert.ToInt32(beginDot.Text);
+            while (true)
+            {
+                string MaxYol = "";
+                double maxYol = Qmatris[sonrakiAdim].Max();
+                for (i = 0; i < MatrixBoyut; i++)
+                {
+                    if (Qmatris[Convert.ToInt32(sonrakiAdim)][i] == maxYol)
+                    {
+                        MaxYol = MaxYol + i + "*";
+                    }
+                }
+                var kundi = MaxYol.Split('*');
+
+                Random randomYol = new Random();
+                int randomMaxIndex = randomYol.Next(0, kundi.Length-1);
+                sonrakiAdim = Convert.ToInt32(kundi[randomMaxIndex]);
+                SonucYol = SonucYol + " - " + sonrakiAdim;
+                if (sonrakiAdim == Convert.ToInt32(EndDot.Text))
+                {
+                    break;
+                }
+            }
+
             using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\Qmatris.txt", false))
             {
-                for (i = 0; i < 9; i++)
+                for (i = 0; i < MatrixBoyut; i++)
                 {
-                    for (j = 0; j < 9; j++)
+                    for (j = 0; j < MatrixBoyut; j++)
                     {
                         wr.Write(Qmatris[i][j] + " ");
                     }
                     wr.WriteLine();
                 }
+                wr.WriteLine("\n\n"+SonucYol);
             }
+
+
+
             MessageBox.Show("Tamamlandı ve Bitti");
         }
 
-        protected double[] zincir(double[][] Rmatris, int indexQbegin,int indexQend,double[][] Qmatris)
+        protected double[] zincir(double[][] Rmatris, int indexQbegin,int indexQend,double[][] Qmatris,int boyut)
         {
             double[] ReturnSonuc = new double[3];
 
@@ -147,7 +197,7 @@ namespace YazlabII_I
 
             int i;
             string yol = "";
-            for (i = 0; i < 9; i++)
+            for (i = 0; i < boyut; i++)
             {
                 if (Rmatris[indexQend][i] >= 0)
                 {
@@ -188,14 +238,14 @@ namespace YazlabII_I
 
             return ReturnSonuc;
         }
-        protected double[][] Qmatris_Olustur()
+        protected double[][] Qmatris_Olustur(int boyut)
         {
-            double[][] Qmatris = new double[9][];
+            double[][] Qmatris = new double[boyut][];
             int i, j;
-            for (i = 0; i < 9; i++)
+            for (i = 0; i < boyut; i++)
             {
-                Qmatris[i] = new double[9];
-                for (j = 0; j < 9; j++)
+                Qmatris[i] = new double[boyut];
+                for (j = 0; j < boyut; j++)
                 {
                     Qmatris[i][j] = 0;
                 }
@@ -203,5 +253,10 @@ namespace YazlabII_I
             return Qmatris;
         }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var myForm = new Form2();
+            myForm.Show();
+        }
     }
 }
