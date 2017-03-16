@@ -78,7 +78,7 @@ namespace YazlabII_I
                     i++;
                 }
             }
-            using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\Rmatrisi.txt",false))
+            using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\outR.txt",false))
             {
                 for (i = 0; i < MatrixBoyut; i++)
                 {
@@ -92,7 +92,7 @@ namespace YazlabII_I
             int hedef = Convert.ToInt32(EndDot.Text);
             var Qmatris = Qmatris_Olustur(MatrixBoyut);
 
-            for (int z = 0; z < Convert.ToInt32(iterasyon.Text); z++)
+            for (int z = 0; z < Convert.ToInt32(iterasyon .Text); z++)
             {
                 int baslangicDot = Convert.ToInt32(beginDot.Text);
 
@@ -113,6 +113,7 @@ namespace YazlabII_I
 
                 int qbaslangic = Convert.ToInt32(yollar[randomIndex]);
                 bool control = false;
+                bool controlX = false;
                 yol = "";
                 int natay = 0;
                 while (true)
@@ -124,10 +125,13 @@ namespace YazlabII_I
 
                     baslangicDot  =  Convert.ToInt32(sonuc[0]);
                     qbaslangic    =  Convert.ToInt32(sonuc[1]);
-
-                    if (control == true)
+                    if (controlX == true)
                     {
                         break;
+                    }
+                    if (control == true)
+                    {
+                        controlX = true;
                     }
                     if (hedef == qbaslangic)
                     {
@@ -164,14 +168,14 @@ namespace YazlabII_I
                 Random randomYol = new Random();
                 int randomMaxIndex = randomYol.Next(0, kundi.Length-1);
                 sonrakiAdim = Convert.ToInt32(kundi[randomMaxIndex]);
-                SonucYol = SonucYol + " - " + sonrakiAdim;
+                SonucYol = SonucYol + "-" + sonrakiAdim;
                 if (sonrakiAdim == Convert.ToInt32(EndDot.Text))
                 {
                     break;
                 }
             }
 
-            using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\Qmatris.txt", false))
+            using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\outQ.txt", false))
             {
                 for (i = 0; i < MatrixBoyut; i++)
                 {
@@ -181,10 +185,18 @@ namespace YazlabII_I
                     }
                     wr.WriteLine();
                 }
-                wr.WriteLine("\n\n"+SonucYol);
             }
 
+            using (StreamWriter wr = new StreamWriter("C:\\Users\\Taha\\Desktop\\outPath.txt", false))
+            {
+                wr.WriteLine("\n\n" + SonucYol);
+            }
 
+            Q_Maze_Info.dosyaYol = path;
+            Q_Maze_Info.begin = Convert.ToInt32(beginDot.Text);
+            Q_Maze_Info.end = Convert.ToInt32(EndDot.Text);
+            Q_Maze_Info.matrixBoyutu = Convert.ToInt32(MatrixBoyut);
+            Q_Maze_Info.yol = SonucYol;
 
             MessageBox.Show("Tamamlandı ve Bitti");
         }

@@ -16,28 +16,34 @@ namespace YazlabII_I
         public Form2()
         {
             InitializeComponent();
+            label1.Text = "Yol -> " + Q_Maze_Info.yol;
+            label2.Text = "Boyut -> " + Q_Maze_Info.matrixBoyutu;
+            label3.Text = "Başlangıç -> " + Q_Maze_Info.begin;
+            label4.Text = "Bitiş -> " + Q_Maze_Info.end;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             DrawIt();
+			//asd
         }
         private void DrawIt()
         {
+            label1.Text = "Yol -> " + Q_Maze_Info.yol;
             System.Drawing.Graphics graphics = this.CreateGraphics();
             System.Drawing.Rectangle rectangle = new System.Drawing.Rectangle(
                 250, 50, 300, 300);
-            string sonucYol = "0-3-4-1-2-5-8";
+            string sonucYol = Q_Maze_Info.yol;
 
             //graphics.DrawEllipse(System.Drawing.Pens.Black, rectangle);
             //graphics.TranslateTransform(100, 50);
             // graphics.PageUnit = GraphicsUnit.Inch;
 
             //graphics.DrawLine(System.Drawing.Pens.Blue, 0, 0, 160, 80);
-            int beginDot = 0;
-            int endDot = 8;
-            double maTrixBoYut = 9;
-            maTrixBoYut = Math.Sqrt(maTrixBoYut);
+            int beginDot = Q_Maze_Info.begin;
+            int endDot = Q_Maze_Info.end;
+            double maTrixBoYut = Q_Maze_Info.matrixBoyutu;
+            maTrixBoYut = Math.Sqrt(Q_Maze_Info.matrixBoyutu);
             graphics.DrawRectangle(System.Drawing.Pens.Black, rectangle);
             double lenght = 300/maTrixBoYut;
             for (int i = 1; i < maTrixBoYut; i++)
@@ -106,7 +112,7 @@ namespace YazlabII_I
             }
             double kaldi = 0;
             double k = 0;
-            using (StreamReader ty = new StreamReader("C:\\Users\\Taha\\Desktop\\ornekGirdiler\\input33.txt"))
+            using (StreamReader ty = new StreamReader(Q_Maze_Info.dosyaYol))
             {
                 String satir;
                 
